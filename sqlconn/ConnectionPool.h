@@ -19,6 +19,7 @@ public:
 
     ~ConnectionPool();
 
+    //得到一个连接,有时间限制,-1表示没有时间限制
     SQLConnection* GetConnecion(unsigned int timeout=0);
     bool ReleaseConnecion(SQLConnection* sqlPtr);
 
@@ -122,9 +123,9 @@ SQLConnection* ConnectionPool::GetConnecion(unsigned int timeout)
         if(success && ind < mySqlPtrList.size())
         {
             //_pool_mutex.test_and_set(std::memory_order_acquire);
-            auto it = Indexes.find(ind);
-            if(it != Indexes.end())
-                Indexes.erase(ind);
+            //auto it = Indexes.find(ind);
+            //if(it != Indexes.end())
+                //Indexes.erase(ind);
             //_pool_mutex.clear(std::memory_order_relaxed);
             return mySqlPtrList[ind].get();
         }
@@ -150,12 +151,12 @@ bool ConnectionPool::ReleaseConnecion(SQLConnection* sqlPtr)
     if(sqlPtr->getPoolId() > -1)
     {
         //_pool_mutex.test_and_set(std::memory_order_acquire);
-        auto it = Indexes.find(sqlPtr->getPoolId());
-        if(it == Indexes.end())
-        {
+        //auto it = Indexes.find(sqlPtr->getPoolId());
+        //if(it == Indexes.end())
+        //{
             connectionQueue.enqueue(sqlPtr->getPoolId());
-            Indexes.insert(sqlPtr->getPoolId());
-        }
+            //Indexes.insert(sqlPtr->getPoolId());
+        //}
         //_pool_mutex.clear(std::memory_order_release);
         return true;
     }
@@ -178,7 +179,7 @@ void ConnectionPool::ClosePoolConnections()
 
     //_pool_mutex.test_and_set(std::memory_order_acquire);
     connectionQueue = moodycamel::ConcurrentQueue<int>();
-    Indexes = std::unordered_set<int>();
+    //Indexes = std::unordered_set<int>();
     //_pool_mutex.clear(std::memory_order_release);
 }
 
@@ -192,7 +193,7 @@ void ConnectionPool::ResetPoolConnections()
         if(success)
         {
             //_pool_mutex.test_and_set(std::memory_order_acquire);
-            Indexes.insert(sqlPtr->getPoolId());
+            //Indexes.insert(sqlPtr->getPoolId());
             connectionQueue.enqueue(sqlPtr->getPoolId());
             //_pool_mutex.clear(std::memory_order_release);
         }

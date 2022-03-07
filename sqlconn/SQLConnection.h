@@ -21,15 +21,18 @@ public:
 
 	virtual ~SQLConnection();
 
-	bool connect(int retry=2);
-	bool close();
+	bool connect(int retry=2); //连接,默认尝试2次
+	bool close();              //关闭连接
 	bool isValide();
 
+	//检查query是否可以执行成功
 	bool checkQuery(std::string query, std::string& error);
 
+	//和checkQuery差不多 只是返回query结果
 	std::vector<std::string> infoQuery(
 		const std::string& query, std::string& error);
 
+	//比infoQuery列进一步,拿到每行的每一列的结果
 	std::vector<std::vector<std::string>> selectQuery(
 		const std::string& query, std::string& error);
 
@@ -47,7 +50,7 @@ private:
 	std::string password;
 	std::string database;
 	int port;
-	int index;
+	int index; //id in pool
 };
 
 
