@@ -29,7 +29,7 @@ public:
     bool HasActiveConnections();
 
 private:
-    std::atomic_flag _pool_mutex;
+    //std::atomic_flag _pool_mutex;
     bool hasActiveConnections;
     std::unordered_set<int> Indexes;
     moodycamel::ConcurrentQueue<int> connectionQueue;
@@ -52,7 +52,7 @@ ConnectionPool::ConnectionPool(
         bool success = false;
         try
         {
-            _pool_mutex.test_and_set(std::memory_order_acquire);
+            //_pool_mutex.test_and_set(std::memory_order_acquire);
             for(int i=0; i < numConnection; i++)
             {
                 mySqlPtrList.emplace_back(
@@ -80,7 +80,7 @@ ConnectionPool::ConnectionPool(
                 hasActiveConnections = true;
                 std::cout << "Pool created successfully." << std::endl;
             }
-            _pool_mutex.clear(std::memory_order_release);
+            //_pool_mutex.clear(std::memory_order_release);
         }
         catch(const std::exception& e)
         {
@@ -121,11 +121,11 @@ SQLConnection* ConnectionPool::GetConnecion(unsigned int timeout)
         success = connectionQueue.try_dequeue(ind);
         if(success && ind < mySqlPtrList.size())
         {
-            _pool_mutex.test_and_set(std::memory_order_acquire);
+            //_pool_mutex.test_and_set(std::memory_order_acquire);
             auto it = Indexes.find(ind);
             if(it != Indexes.end())
                 Indexes.erase(ind);
-            _pool_mutex.clear(std::memory_order_relaxed);
+            //_pool_mutex.clear(std::memory_order_relaxed);
             return mySqlPtrList[ind].get();
         }
 
@@ -149,14 +149,14 @@ bool ConnectionPool::ReleaseConnecion(SQLConnection* sqlPtr)
 {
     if(sqlPtr->getPoolId() > -1)
     {
-        _pool_mutex.test_and_set(std::memory_order_acquire);
+        //_pool_mutex.test_and_set(std::memory_order_acquire);
         auto it = Indexes.find(sqlPtr->getPoolId());
         if(it == Indexes.end())
         {
             connectionQueue.enqueue(sqlPtr->getPoolId());
             Indexes.insert(sqlPtr->getPoolId());
         }
-        _pool_mutex.clear(std::memory_order_release);
+        //_pool_mutex.clear(std::memory_order_release);
         return true;
     }
     return false;
@@ -176,10 +176,10 @@ void ConnectionPool::ClosePoolConnections()
             sqlPtr->close();
     }
 
-    _pool_mutex.test_and_set(std::memory_order_acquire);
+    //_pool_mutex.test_and_set(std::memory_order_acquire);
     connectionQueue = moodycamel::ConcurrentQueue<int>();
     Indexes = std::unordered_set<int>();
-    _pool_mutex.clear(std::memory_order_release);
+    //_pool_mutex.clear(std::memory_order_release);
 }
 
 void ConnectionPool::ResetPoolConnections()
@@ -191,10 +191,10 @@ void ConnectionPool::ResetPoolConnections()
         success = sqlPtr->connect();
         if(success)
         {
-            _pool_mutex.test_and_set(std::memory_order_acquire);
+            //_pool_mutex.test_and_set(std::memory_order_acquire);
             Indexes.insert(sqlPtr->getPoolId());
             connectionQueue.enqueue(sqlPtr->getPoolId());
-            _pool_mutex.clear(std::memory_order_release);
+            //_pool_mutex.clear(std::memory_order_release);
         }
         else
         {

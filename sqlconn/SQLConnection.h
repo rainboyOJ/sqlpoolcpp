@@ -3,11 +3,12 @@
 
 /* all necessary functionalities for mysql interaction */
 
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include <string>
+#include <memory>
 #include <iostream>
-#include <thread>      
-#include <chrono> 
+#include <thread>
+#include <chrono>
 #include <vector>
 
 
@@ -15,8 +16,8 @@ class SQLConnection
 {
 public:
 	SQLConnection(
-		const std::string& server, int port, const std::string& user, 
-		const std::string& password, const std::string& database, int id=-1); 
+		const std::string& server, int port, const std::string& user,
+		const std::string& password, const std::string& database, int id=-1);
 
 	virtual ~SQLConnection();
 
@@ -28,7 +29,7 @@ public:
 
 	std::vector<std::string> infoQuery(
 		const std::string& query, std::string& error);
-		
+
 	std::vector<std::vector<std::string>> selectQuery(
 		const std::string& query, std::string& error);
 
@@ -42,7 +43,7 @@ private:
 	MYSQL_RES* result;
 	MYSQL_ROW row;
 	std::string server;
-	std::string user; 
+	std::string user;
 	std::string password;
 	std::string database;
 	int port;
@@ -51,8 +52,8 @@ private:
 
 
 SQLConnection::SQLConnection(
-	const std::string& server, int port, const std::string& user, 
-	const std::string& password, const std::string& database, int id) 
+	const std::string& server, int port, const std::string& user,
+	const std::string& password, const std::string& database, int id)
 {
 	this->server = server;
 	this->user = user;
@@ -74,7 +75,7 @@ bool SQLConnection::connect(int retry)
 	bool success = false;
 	if(retry <= 0 )
 	{
-		std::cout << "Failed to connect to host=" << server 
+		std::cout << "Failed to connect to host=" << server
 				<< " db=" << database << " user=" << user << std::endl;
 		return false;
 	}
@@ -83,8 +84,8 @@ bool SQLConnection::connect(int retry)
 	mysql_options(conn, MYSQL_OPT_LOCAL_INFILE, 0);
 
 	conn = mysql_real_connect(
-			conn, server.c_str(), user.c_str(), 
-			password.c_str(), database.c_str(), port, 
+			conn, server.c_str(), user.c_str(),
+			password.c_str(), database.c_str(), port,
 			NULL, CLIENT_MULTI_STATEMENTS);
 
 	if (conn != nullptr)
@@ -213,7 +214,7 @@ std::string SQLConnection::getDatabase()
 {
 	return this->database;
 }
-	
+
 std::string SQLConnection::getUser()
 {
 	return this->user;
