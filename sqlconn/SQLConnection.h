@@ -232,7 +232,8 @@ int SQLConnection::getPoolId()
 std::string SQLConnection::escapeString(std::string_view _str){
     std::string ret;
     ret.resize(_str.length() *2 + 2);
-    mysql_real_escape_string(this->conn, ret.data(),_str.data(), _str.length());
+    auto size = mysql_real_escape_string(this->conn, ret.data(),_str.data(), _str.length());
+    ret.resize(size);
     return ret;
 }
 
