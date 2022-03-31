@@ -39,6 +39,7 @@ public:
 	std::string getServer();
 	std::string getDatabase();
 	std::string getUser();
+    std::string escapeString(std::string_view _str);
 	int getPoolId();
 
 private:
@@ -226,6 +227,13 @@ std::string SQLConnection::getUser()
 int SQLConnection::getPoolId()
 {
 	return this->index;
+}
+
+std::string SQLConnection::escapeString(std::string_view _str){
+    std::string ret;
+    ret.resize(_str.length() *2 + 2);
+    mysql_real_escape_string(this->conn, ret.data(),_str.data(), _str.length());
+    return ret;
 }
 
 #endif
