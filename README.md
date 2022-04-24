@@ -1,3 +1,6 @@
+
+code discard,please use[rainboyOJ/morden_cppdb](https://github.com/rainboyOJ/morden_cppdb)
+
 # ##########################################################
 
     MYSQL CONNECTION POOL FOR REALTIME DATA
